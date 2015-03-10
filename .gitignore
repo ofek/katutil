@@ -6,4 +6,5 @@
 /build
 /dist
 
-*.md
+DME.md
+*.rst
