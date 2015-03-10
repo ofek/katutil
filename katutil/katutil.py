@@ -15,7 +15,7 @@ elif sys.version[0] == '3':
     _input = input
 
 
-def getInput(raw_string, message):
+def get_input(raw_string, message):
 
     temp = 0
     while not temp:
@@ -28,73 +28,73 @@ def getInput(raw_string, message):
             return temp
 
 
-def getLines(tempFile, lineNum):
-    with open(tempFile, 'r') as f:
+def get_lines(temp_file, line_num):
+    with open(temp_file, 'r') as f:
         lines = f.readlines()
-    if lineNum == 'a':
+    if line_num == 'a':
         return lines
-    elif lineNum == 't':
+    elif line_num == 't':
         try:
             return [x.strip() for x in lines[4:] if x not in ('', '\n')]
         except:
             return None
     else:
         try:
-            return lines[lineNum - 1]
+            return lines[line_num - 1]
         except:
             return None
 
 
-def writeFile(tempFile, text, linePosition):
-    if os.path.exists(tempFile):
-        lines = getLines(tempFile, 'a')
-        numLines = len(lines)
-        with open(tempFile, 'w') as f:
-            if linePosition == 't':
+def write_file(temp_file, text, line_pos):
+    if os.path.exists(temp_file):
+        lines = get_lines(temp_file, 'a')
+        num_lines = len(lines)
+        with open(temp_file, 'w') as f:
+            if line_pos == 't':
                 f.write(''.join(lines[:4]))
                 for line in text:
                     f.write('{}\n'.format(line))
             else:
-                length = numLines if numLines > linePosition else linePosition
-                linePosition -= 1
+                length = num_lines if num_lines > line_pos else line_pos
+                line_pos -= 1
                 for i in range(length):
-                    if i == linePosition:
+                    if i == line_pos:
                         f.write('{}\n'.format(text))
                     else:
                         f.write('{}'.format(lines[i]))
     else:
-        with open(tempFile, 'w') as f:
-            length = linePosition
-            linePosition -= 1
+        with open(temp_file, 'w') as f:
+            length = line_pos
+            line_pos -= 1
             for i in range(length):
-                if i == linePosition:
+                if i == line_pos:
                     f.write('{}\n'.format(text))
                 else:
                     f.write('\n')
 
 
-def getDriver(tempFile):
+def get_driver(temp_file):
     path = None
 
     try:
 
-        if os.path.exists(tempFile):
-            path = getLines(tempFile, 1)
+        if os.path.exists(temp_file):
+            path = get_lines(temp_file, 1)
             path = None if path is None else path.strip()
-            if getInput(
+            if get_input(
                 r'^(y|n|)$', '\n\nIs path "{}" correct (y/n)? '.format(path)
             ) == 'n':
                 path = None
 
         if path is None:
-            path = getInput(
+            path = get_input(
                 r'^[a-zA-Z0-9\\/:\-\'\.\(\)!&_ ]+$',
                 '\n\nEnter path to executable. Examples:\n\n'
                 '\t==> Windows - "C:\\phantomjs\\phantomjs.exe"\n'
                 '\t==> OS X - "/bin/phantomjs"\n'
                 '\t==> Linux - "phantomjs"\n\n'
             )
-            writeFile(tempFile, path, 1)
+            write_file(temp_file, path, 1)
 
         driver = webdriver.PhantomJS(path)
 
@@ -106,24 +106,24 @@ def getDriver(tempFile):
     return driver
 
 
-def getDomain(tempFile, driver):
-    validDomain = r'^[a-zA-Z0-9.\-_]+$'
-    mainTitleText = 'KickassTorrents'
+def get_domain(temp_file, driver):
+    valid_domain = r'^[a-zA-Z0-9.\-_]+$'
+    main_title_text = 'KickassTorrents'
     domain = None
-    previousDomain = getLines(tempFile, 2)
-    if previousDomain is not None:
-        previousDomain = previousDomain.strip()
+    previous_domain = get_lines(temp_file, 2)
+    if previous_domain is not None:
+        previous_domain = previous_domain.strip()
 
     while domain is None:
-        domain = 'kickass.to' if previousDomain is None else previousDomain
-        t = getInput(r'^(y|n|)$', '\n\nIs KAT domain still "{}" (y/n)? '.format(domain))
+        domain = 'kickass.to' if previous_domain is None else previous_domain
+        t = get_input(r'^(y|n|)$', '\n\nIs KAT domain still "{}" (y/n)? '.format(domain))
         if t == 'n':
-            domain = getInput(validDomain, '\n\nEnter new domain: ')
+            domain = get_input(valid_domain, '\n\nEnter new domain: ')
         print('\n\nChecking domain...\n')
 
         driver.get('https://{}/'.format(domain))
-        if mainTitleText not in driver.title:
-            t = getInput(r'^(y|n)$', '\n\nUnverified domain, try another (y/n)? ')
+        if main_title_text not in driver.title:
+            t = get_input(r'^(y|n)$', '\n\nUnverified domain, try another (y/n)? ')
             if t == 'y':
                 domain = None
                 continue
@@ -132,36 +132,36 @@ def getDomain(tempFile, driver):
                 input('\n\nPress enter to quit...')
                 sys.exit()
 
-    if domain != previousDomain:
-        writeFile(tempFile, domain, 2)
+    if domain != previous_domain:
+        write_file(temp_file, domain, 2)
     return domain
 
 
-def getUser(tempFile, driver, domain, timeout):
-    validUser = r'^[a-zA-Z0-9\[\]$.\-_]+$'
-    uploadUrl = 'https://{}/usearch/user:{{}}/'.format(domain)
+def get_user(temp_file, driver, domain, timeout):
+    valid_user = r'^[a-zA-Z0-9\[\]$.\-_]+$'
+    upload_url = 'https://{}/usearch/user:{{}}/'.format(domain)
     user = None
-    previousUser = getLines(tempFile, 3)
-    if previousUser is not None:
-        previousUser = previousUser.strip()
+    previous_user = get_lines(temp_file, 3)
+    if previous_user is not None:
+        previous_user = previous_user.strip()
 
     while user is None:
-        user = 'change_me' if previousUser is None else previousUser
-        t = getInput(r'^(y|n|)$', '\n\nIs username "{}" (y/n)? '.format(user))
+        user = 'change_me' if previous_user is None else previous_user
+        t = get_input(r'^(y|n|)$', '\n\nIs username "{}" (y/n)? '.format(user))
         if t == 'n':
-            user = getInput(validUser, '\n\nEnter new user: ')
+            user = get_input(valid_user, '\n\nEnter new user: ')
         print('\n\nValidating user...\n')
 
-        driver.get(uploadUrl.format(user))
-        mainArea = WebDriverWait(driver, timeout).until(lambda x:x
+        driver.get(upload_url.format(user))
+        main_area = WebDriverWait(driver, timeout).until(lambda x:x
             .find_element_by_class_name('mainpart')
             .find_elements_by_tag_name('td')
         )[0]
 
         try:
-            errorText = mainArea.find_element_by_class_name('errorpage').text
-            if 'by {}'.format(user) in errorText:
-                t = getInput(r'^(y|n)$', '\n\nUser has no uploads, try another (y/n)? ')
+            error_text = main_area.find_element_by_class_name('errorpage').text
+            if 'by {}'.format(user) in error_text:
+                t = get_input(r'^(y|n)$', '\n\nUser has no uploads, try another (y/n)? ')
                 if t == 'y':
                     user = None
                     continue
@@ -170,7 +170,7 @@ def getUser(tempFile, driver, domain, timeout):
                     input('\n\nPress enter to quit...')
                     sys.exit()
             else:
-                t = getInput(r'^(y|n)$', '\n\nUnregistered user, try another (y/n)? ')
+                t = get_input(r'^(y|n)$', '\n\nUnregistered user, try another (y/n)? ')
                 if t == 'y':
                     user = None
                     continue
@@ -183,28 +183,28 @@ def getUser(tempFile, driver, domain, timeout):
         except:
             pass
 
-    if user != previousUser:
-        writeFile(tempFile, user, 3)
+    if user != previous_user:
+        write_file(temp_file, user, 3)
     return user
 
 
-def getUrls(driver, domain, user, timeout):
-    uploadUrl = 'https://{}/usearch/user:{}/'.format(domain, user)
-    if driver.current_url != uploadUrl:
-        driver.get(uploadUrl)
+def get_urls(driver, domain, user, timeout):
+    upload_url = 'https://{}/usearch/user:{}/'.format(domain, user)
+    if driver.current_url != upload_url:
+        driver.get(upload_url)
 
     try:
-        numPages = int(WebDriverWait(driver, timeout).until(
+        num_pages = int(WebDriverWait(driver, timeout).until(
             lambda x:x.find_element_by_class_name('pages').find_elements_by_tag_name('a')
         )[-1].text)
     except:
-        numPages = 1
+        num_pages = 1
 
     print('\n\nFetching all torrent urls, this may take a while...\n')
     urls = []
 
-    for i in range(1, numPages + 1):
-        driver.get('{}{}/?field=time_add&sorder=desc'.format(uploadUrl, i))
+    for i in range(1, num_pages + 1):
+        driver.get('{}{}/?field=time_add&sorder=desc'.format(upload_url, i))
         links = WebDriverWait(driver, timeout).until(lambda x:x.find_elements_by_class_name('cellMainLink'))
         urls.extend(['{}#technical'.format(x.get_attribute('href')) for x in links])
         print('\nFound {} url(s)...'.format(len(urls)))
@@ -212,42 +212,42 @@ def getUrls(driver, domain, user, timeout):
     return urls
 
 
-def refreshTrackers(driver, urls, numTorrents, timeout):
+def refresh_trackers(driver, urls, num_torrents, timeout):
     errors = []
     print('\n\nRefreshing torrents, this may take a while...\n\n')
 
     for i, url in enumerate(urls):
         time.sleep(3)
         try:
-            text = '{}/{} - {}'.format(i + 1, numTorrents, url)
+            text = '{}/{} - {}'.format(i + 1, num_torrents, url)
             print(text)
 
             driver.get(url)
 
-            refreshButton = WebDriverWait(driver, timeout).until(lambda x:x
+            refresh_button = WebDriverWait(driver, timeout).until(lambda x:x
                 .find_element_by_id('trackerBox')
                 .find_element_by_class_name('buttonsline')
                 .find_element_by_tag_name('button')
             )
-            refreshButton.click()
+            refresh_button.click()
         except:
             errors.append(text)
 
-    numErrors = len(errors)
-    numSuccessful = numTorrents - numErrors
+    num_errors = len(errors)
+    num_successful = num_torrents - num_errors
 
-    print('\n\nTorrents refreshed: {}\nErrors: {}\n\n'.format(numSuccessful, numErrors))
-    if numErrors > 0:
-        t = getInput(r'^(y|n|)$', 'Unable to refresh {} torrents. See which ones (y/n)? '.format(numErrors))
+    print('\n\nTorrents refreshed: {}\nErrors: {}\n\n'.format(num_successful, num_errors))
+    if num_errors > 0:
+        t = get_input(r'^(y|n|)$', 'Unable to refresh {} torrents. See which ones (y/n)? '.format(num_errors))
         if t != 'n':
             for error in errors:
                 print('\n{}'.format(error))
 
 
-def getTrackers(tempFile):
-    validTracker = r'^[a-zA-Z0-9./:\-_]+$'
-    previousTrackers = getLines(tempFile, 't')
-    trackers = list(previousTrackers)
+def get_trackers(temp_file):
+    valid_tracker = r'^[a-zA-Z0-9./:\-_]+$'
+    previous_trackers = get_lines(temp_file, 't')
+    trackers = list(previous_trackers)
     prompt = ('\n\nPlease choose an option:\n\n'
               '\t1 - Add a tracker\n'
               '\t2 - Remove a tracker\n'
@@ -258,19 +258,19 @@ def getTrackers(tempFile):
     t = 'n'
     while t == 'n':
         if len(trackers) > 0:
-            t = getInput(r'^(y|n|)$', '\n\n{}\n\nUse above trackers (y/n)? '.format('\n'.join(trackers)))
+            t = get_input(r'^(y|n|)$', '\n\n{}\n\nUse above trackers (y/n)? '.format('\n'.join(trackers)))
         if t == 'n':
-            choice = getInput(r"^(1|2|3|4)$", prompt)
+            choice = get_input(r"^(1|2|3|4)$", prompt)
 
             if choice == '1':
-                tracker = getInput(validTracker, '\n\nEnter one new tracker: ')
+                tracker = get_input(valid_tracker, '\n\nEnter one new tracker: ')
                 trackers.append(tracker)
             elif choice == '2':
                 if len(trackers) == 0:
                     print('\n\nNo trackers')
                 else:
                     s = '\n'.join(['{} - {}'.format(x + 1, y) for x, y in enumerate(trackers)])
-                    num = getInput(
+                    num = get_input(
                         r'^({})$'.format('|'.join([str(i + 1) for i in range(len(trackers))])),
                         '\n\n{}\n\nRemove which tracker? '.format(s)
                     )
@@ -278,115 +278,115 @@ def getTrackers(tempFile):
             elif choice == '3':
                 trackers.clear()
             elif choice == '4':
-                trackers = list(previousTrackers)
+                trackers = list(previous_trackers)
 
-    if trackers != previousTrackers:
-        writeFile(tempFile, trackers, 't')
+    if trackers != previous_trackers:
+        write_file(temp_file, trackers, 't')
     return '\n'.join(trackers)
 
 
-def login(tempFile, driver, domain, user, timeout):
-    validEmail = r'^[^\s]{1,128}$'
-    validPassword = r'^[^\s]{1,128}$'
-    loginUrl = 'https://{}/auth/login/'.format(domain)
-    aboutUrl = 'https://{}/about/'.format(domain)
+def login(temp_file, driver, domain, user, timeout):
+    valid_email = r'^[^\s]{1,128}$'
+    valid_password = r'^[^\s]{1,128}$'
+    login_url = 'https://{}/auth/login/'.format(domain)
+    about_url = 'https://{}/about/'.format(domain)
     email = None
-    previousEmail = getLines(tempFile, 4)
-    if previousEmail is not None:
-        previousEmail = previousEmail.strip()
+    previous_email = get_lines(temp_file, 4)
+    if previous_email is not None:
+        previous_email = previous_email.strip()
 
     while email is None:
-        email = 'change@me.now' if previousEmail is None else previousEmail
-        t = getInput(r'^(y|n|)$', '\n\nUse email "{}" (y/n)? '.format(email))
+        email = 'change@me.now' if previous_email is None else previous_email
+        t = get_input(r'^(y|n|)$', '\n\nUse email "{}" (y/n)? '.format(email))
         if t == 'n':
-            email = getInput(validEmail, '\n\nEnter new email: ')
-        password = getInput(validPassword, '\n\nEnter password (never saved): ')
+            email = get_input(valid_email, '\n\nEnter new email: ')
+        password = get_input(valid_password, '\n\nEnter password (never saved): ')
 
         try:
-            driver.get(loginUrl)
-            if driver.current_url == loginUrl:
+            driver.get(login_url)
+            if driver.current_url == login_url:
                 try:
                     # sometimes KAT renders regular form
-                    emailField = WebDriverWait(driver, timeout).until(
+                    email_field = WebDriverWait(driver, timeout).until(
                         EC.element_to_be_clickable((By.ID, 'field_email'))
                     )
-                    passwordField = WebDriverWait(driver, timeout).until(
+                    password_field = WebDriverWait(driver, timeout).until(
                         EC.element_to_be_clickable((By.ID, 'field_password'))
                     )
                 except:
                     # other times KAT renders mobile form
-                    emailField = WebDriverWait(driver, timeout).until(
+                    email_field = WebDriverWait(driver, timeout).until(
                         EC.element_to_be_clickable((By.NAME, 'email'))
                     )
-                    passwordField = WebDriverWait(driver, timeout).until(
+                    password_field = WebDriverWait(driver, timeout).until(
                         EC.element_to_be_clickable((By.NAME, 'password'))
                     )
                 print('\n\nLogging in, please wait...')
-                emailField.send_keys(email)
-                passwordField.send_keys(password)
-                passwordField.send_keys(Keys.RETURN)
+                email_field.send_keys(email)
+                password_field.send_keys(password)
+                password_field.send_keys(Keys.RETURN)
         except:
-            t = getInput(r'^(y|n)$', '\n\nError loading login form, try again (y/n)? ')
+            t = get_input(r'^(y|n)$', '\n\nError loading login form, try again (y/n)? ')
             if t == 'y':
                 email = None
                 continue
             else:
                 return False
 
-        driver.get(aboutUrl)
+        driver.get(about_url)
         if user not in driver.page_source:
-            t = getInput(r'^(y|n)$', '\n\nIncorrent email or password, try another (y/n)? ')
+            t = get_input(r'^(y|n)$', '\n\nIncorrent email or password, try another (y/n)? ')
             if t == 'y':
                 email = None
                 continue
             else:
                 return False
 
-    if email != previousEmail:
-        writeFile(tempFile, email, 4)
+    if email != previous_email:
+        write_file(temp_file, email, 4)
     return True
 
 
-def editTrackers(driver, urls, numTorrents, trackers, timeout):
+def edit_trackers(driver, urls, num_torrents, trackers, timeout):
     errors = []
     print('\n\nEditing trackers, this may take a while...\n\n')
 
     for i, url in enumerate(urls):
         time.sleep(3)
         try:
-            text = '{}/{} - {}'.format(i + 1, numTorrents, url)
+            text = '{}/{} - {}'.format(i + 1, num_torrents, url)
 
             driver.get(url)
 
-            editButton = WebDriverWait(driver, timeout).until(lambda x:x
+            edit_button = WebDriverWait(driver, timeout).until(lambda x:x
                 .find_element_by_id('trackerBox')
                 .find_element_by_class_name('buttonsline')
                 .find_element_by_tag_name('a')
             )
-            url = editButton.get_attribute('href')
+            url = edit_button.get_attribute('href')
 
-            text = '{}/{} - {}'.format(i + 1, numTorrents, url)
+            text = '{}/{} - {}'.format(i + 1, num_torrents, url)
             print(text)
 
             driver.get(url)
 
-            trackerField = WebDriverWait(driver, timeout).until(lambda x:x
+            tracker_field = WebDriverWait(driver, timeout).until(lambda x:x
                 .find_element_by_class_name('mainpart')
                 .find_element_by_tag_name('textarea')
             )
-            trackerField.clear()
-            trackerField.send_keys(trackers)
-            trackerField.submit()
+            tracker_field.clear()
+            tracker_field.send_keys(trackers)
+            tracker_field.submit()
 
         except:
             errors.append(text)
 
-    numErrors = len(errors)
-    numSuccessful = numTorrents - numErrors
+    num_errors = len(errors)
+    num_successful = num_torrents - num_errors
 
-    print('\n\nTorrents edited: {}\nErrors: {}\n\n'.format(numSuccessful, numErrors))
-    if numErrors > 0:
-        t = getInput(r'^(y|n|)$', 'Unable to edit {} torrents. See which ones (y/n)? '.format(numErrors))
+    print('\n\nTorrents edited: {}\nErrors: {}\n\n'.format(num_successful, num_errors))
+    if num_errors > 0:
+        t = get_input(r'^(y|n|)$', 'Unable to edit {} torrents. See which ones (y/n)? '.format(num_errors))
         if t != 'n':
             for error in errors:
                 print('\n{}'.format(error))
@@ -398,12 +398,12 @@ def main():
         timeout = int(sys.argv[1])
     except:
         timeout = 20
-    tempFile = os.path.join(tempfile.gettempdir(), 'tracker_refresher_6108589.txt')
-    driver = getDriver(tempFile)
-    domain = getDomain(tempFile, driver)
-    user = getUser(tempFile, driver, domain, timeout)
-    urls = getUrls(driver, domain, user, timeout)
-    numTorrents = len(urls)
+    temp_file = os.path.join(tempfile.gettempdir(), 'katutil_temp_6108589.txt')
+    driver = get_driver(temp_file)
+    domain = get_domain(temp_file, driver)
+    user = get_user(temp_file, driver, domain, timeout)
+    urls = get_urls(driver, domain, user, timeout)
+    num_torrents = len(urls)
 
     prompt = ('\n\nPlease choose an option:\n\n'
               '\t1 - Refresh all trackers\n'
@@ -414,19 +414,16 @@ def main():
     choice = None
 
     while choice != 'q':
-        choice = getInput(r"^(1|2|q)$", prompt)
+        choice = get_input(r"^(1|2|q)$", prompt)
 
         if choice == '1':
-            refreshTrackers(driver, urls, numTorrents, timeout)
+            refresh_trackers(driver, urls, num_torrents, timeout)
         elif choice == '2':
-            loginSucceeded = login(tempFile, driver, domain, user, timeout)
-            if loginSucceeded:
-                trackers = getTrackers(tempFile)
-                editTrackers(driver, urls, numTorrents, trackers, timeout)
+            login_succeeded = login(temp_file, driver, domain, user, timeout)
+            if login_succeeded:
+                trackers = get_trackers(temp_file)
+                edit_trackers(driver, urls, num_torrents, trackers, timeout)
             else:
                 print('\n\nCannot edit trackers without logging in.')
 
     driver.quit()
-
-
-#if __name__ == '__main__': main()

@@ -1,8 +1,10 @@
 *.pyc
+/.coverage
 /katutil.egg-info
 
 /.idea
-/.coverage
 /build
 /dist
 
+*.txt
+*.log
