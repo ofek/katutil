@@ -106,6 +106,7 @@ class PhantomJSInstaller:
     def build(self):
         print('Compiling...\n\n')
         for cmd in self.build_cmds:
+            print('Running command: {}'.format(' '.join(cmd)))
             subprocess.call(cmd)
 
     def cleanup(self):
