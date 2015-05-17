@@ -109,7 +109,7 @@ class PhantomJSInstaller:
         for cmd in self.build_cmds:
             print('\n>>> Running command: {}\n\n'.format(' '.join(cmd)))
             print(os.getcwd())
-            subprocess.call(cmd)
+            subprocess.call(cmd, shell=True)
 
     def cleanup(self):
         os.chdir(os.path.dirname(self.executable_path))
