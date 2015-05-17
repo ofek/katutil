@@ -1,13 +1,34 @@
+# The MIT License (MIT)
+#
+# Copyright (c) 2015 Ofek Lev
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
+
 import re
 import sys
 import os
 import time
 import tempfile
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, WebDriverException
 
 if sys.version[0] == '2':
     _input = raw_input
@@ -16,12 +37,9 @@ elif sys.version[0] == '3':
 
 
 def get_input(raw_string, message):
-
     temp = 0
     while not temp:
-
         temp = _input(message)
-
         if not re.match(raw_string, temp):
             temp = 0
         else:
@@ -34,14 +52,11 @@ def get_lines(temp_file, line_num):
     if line_num == 'a':
         return lines
     elif line_num == 't':
-        try:
-            return [x.strip() for x in lines[4:] if x not in ('', '\n')]
-        except:
-            return None
+        return [x.strip() for x in lines[4:] if x not in ('', '\n')]
     else:
         try:
             return lines[line_num - 1]
-        except:
+        except IndexError:
             return None
 
 
@@ -73,6 +88,13 @@ def write_file(temp_file, text, line_pos):
                     f.write('\n')
 
 
+def check_enabled(element):
+    if element and element.is_enabled() and element.is_displayed():
+        return element
+    else:
+        return False
+
+
 def get_driver(temp_file):
     path = None
 
@@ -94,15 +116,15 @@ def get_driver(temp_file):
                 '\t==> OS X - "/bin/phantomjs"\n'
                 '\t==> Linux - "phantomjs"\n\n'
             )
-            write_file(temp_file, path, 1)
 
         driver = webdriver.PhantomJS(path)
 
-    except:
-        input('\n\nError loading phantomjs on path "{}". Press enter to quit...'.format(path))
+    except WebDriverException:
+        _input('\n\nError loading phantomjs on path "{}". Press enter to quit...'.format(path))
         sys.exit()
 
-    driver.set_window_size(1920, 1080) # For reliable element loading
+    write_file(temp_file, path, 1)
+    driver.set_window_size(1920, 1080)  # For reliable element loading
     return driver
 
 
@@ -129,7 +151,7 @@ def get_domain(temp_file, driver):
                 continue
             else:
                 driver.quit()
-                input('\n\nPress enter to quit...')
+                _input('\n\nPress enter to quit...')
                 sys.exit()
 
     if domain != previous_domain:
@@ -153,10 +175,13 @@ def get_user(temp_file, driver, domain, timeout):
         print('\n\nValidating user...\n')
 
         driver.get(upload_url.format(user))
-        main_area = WebDriverWait(driver, timeout).until(lambda x:x
-            .find_element_by_class_name('mainpart')
-            .find_elements_by_tag_name('td')
-        )[0]
+        main_area = WebDriverWait(driver, timeout).until(
+            lambda x:
+                check_enabled(
+                    x.find_element_by_class_name('mainpart')
+                    .find_elements_by_tag_name('td')[0]
+                )
+        )
 
         try:
             error_text = main_area.find_element_by_class_name('errorpage').text
@@ -167,7 +192,7 @@ def get_user(temp_file, driver, domain, timeout):
                     continue
                 else:
                     driver.quit()
-                    input('\n\nPress enter to quit...')
+                    _input('\n\nPress enter to quit...')
                     sys.exit()
             else:
                 t = get_input(r'^(y|n)$', '\n\nUnregistered user, try another (y/n)? ')
@@ -176,11 +201,11 @@ def get_user(temp_file, driver, domain, timeout):
                     continue
                 else:
                     driver.quit()
-                    input('\n\nPress enter to quit...')
+                    _input('\n\nPress enter to quit...')
                     sys.exit()
         except SystemExit:
             sys.exit()
-        except:
+        except NoSuchElementException:
             pass
 
     if user != previous_user:
@@ -195,9 +220,13 @@ def get_urls(driver, domain, user, timeout):
 
     try:
         num_pages = int(WebDriverWait(driver, timeout).until(
-            lambda x:x.find_element_by_class_name('pages').find_elements_by_tag_name('a')
-        )[-1].text)
-    except:
+            lambda x:
+                check_enabled(
+                    x.find_element_by_class_name('pages')
+                    .find_elements_by_tag_name('a')[-1]
+                )
+        ).text)
+    except TimeoutException:
         num_pages = 1
 
     print('\n\nFetching all torrent urls, this may take a while...\n')
@@ -205,7 +234,9 @@ def get_urls(driver, domain, user, timeout):
 
     for i in range(1, num_pages + 1):
         driver.get('{}{}/?field=time_add&sorder=desc'.format(upload_url, i))
-        links = WebDriverWait(driver, timeout).until(lambda x:x.find_elements_by_class_name('cellMainLink'))
+        links = WebDriverWait(driver, timeout).until(
+            lambda x: x.find_elements_by_class_name('cellMainLink')
+        )
         urls.extend(['{}#technical'.format(x.get_attribute('href')) for x in links])
         print('\nFound {} url(s)...'.format(len(urls)))
 
@@ -214,23 +245,27 @@ def get_urls(driver, domain, user, timeout):
 
 def refresh_trackers(driver, urls, num_torrents, timeout):
     errors = []
+    text = ''
     print('\n\nRefreshing torrents, this may take a while...\n\n')
 
     for i, url in enumerate(urls):
-        time.sleep(3)
+        time.sleep(1)
         try:
             text = '{}/{} - {}'.format(i + 1, num_torrents, url)
             print(text)
 
             driver.get(url)
 
-            refresh_button = WebDriverWait(driver, timeout).until(lambda x:x
-                .find_element_by_id('trackerBox')
-                .find_element_by_class_name('buttonsline')
-                .find_element_by_tag_name('button')
+            refresh_button = WebDriverWait(driver, timeout).until(
+                lambda x:
+                    check_enabled(
+                        x.find_element_by_id('trackerBox')
+                        .find_element_by_class_name('buttonsline')
+                        .find_element_by_tag_name('button')
+                    )
             )
             refresh_button.click()
-        except:
+        except TimeoutException:
             errors.append(text)
 
     num_errors = len(errors)
@@ -305,27 +340,37 @@ def login(temp_file, driver, domain, user, timeout):
         try:
             driver.get(login_url)
             if driver.current_url == login_url:
-                try:
-                    # sometimes KAT renders regular form
+                try:  # sometimes KAT renders regular form
                     email_field = WebDriverWait(driver, timeout).until(
-                        EC.element_to_be_clickable((By.ID, 'field_email'))
+                        lambda x:
+                            check_enabled(
+                                x.find_element_by_id('field_email')
+                            )
                     )
                     password_field = WebDriverWait(driver, timeout).until(
-                        EC.element_to_be_clickable((By.ID, 'field_password'))
+                        lambda x:
+                            check_enabled(
+                                x.find_element_by_id('field_password')
+                            )
                     )
-                except:
-                    # other times KAT renders mobile form
+                except TimeoutException:  # other times KAT renders mobile form
                     email_field = WebDriverWait(driver, timeout).until(
-                        EC.element_to_be_clickable((By.NAME, 'email'))
+                        lambda x:
+                            check_enabled(
+                                x.find_element_by_name('email')
+                            )
                     )
                     password_field = WebDriverWait(driver, timeout).until(
-                        EC.element_to_be_clickable((By.NAME, 'password'))
+                        lambda x:
+                            check_enabled(
+                                x.find_element_by_name('password')
+                            )
                     )
                 print('\n\nLogging in, please wait...')
                 email_field.send_keys(email)
                 password_field.send_keys(password)
-                password_field.send_keys(Keys.RETURN)
-        except:
+                password_field.submit()
+        except TimeoutException:
             t = get_input(r'^(y|n)$', '\n\nError loading login form, try again (y/n)? ')
             if t == 'y':
                 email = None
@@ -349,19 +394,23 @@ def login(temp_file, driver, domain, user, timeout):
 
 def edit_trackers(driver, urls, num_torrents, trackers, timeout):
     errors = []
+    text = ''
     print('\n\nEditing trackers, this may take a while...\n\n')
 
     for i, url in enumerate(urls):
-        time.sleep(3)
+        time.sleep(1)
         try:
             text = '{}/{} - {}'.format(i + 1, num_torrents, url)
 
             driver.get(url)
 
-            edit_button = WebDriverWait(driver, timeout).until(lambda x:x
-                .find_element_by_id('trackerBox')
-                .find_element_by_class_name('buttonsline')
-                .find_element_by_tag_name('a')
+            edit_button = WebDriverWait(driver, timeout).until(
+                lambda x:
+                    check_enabled(
+                        x.find_element_by_id('trackerBox')
+                        .find_element_by_class_name('buttonsline')
+                        .find_element_by_tag_name('a')
+                    )
             )
             url = edit_button.get_attribute('href')
 
@@ -370,15 +419,18 @@ def edit_trackers(driver, urls, num_torrents, trackers, timeout):
 
             driver.get(url)
 
-            tracker_field = WebDriverWait(driver, timeout).until(lambda x:x
-                .find_element_by_class_name('mainpart')
-                .find_element_by_tag_name('textarea')
+            tracker_field = WebDriverWait(driver, timeout).until(
+                lambda x:
+                    check_enabled(
+                        x.find_element_by_class_name('mainpart')
+                        .find_element_by_tag_name('textarea')
+                    )
             )
             tracker_field.clear()
             tracker_field.send_keys(trackers)
             tracker_field.submit()
 
-        except:
+        except TimeoutException:
             errors.append(text)
 
     num_errors = len(errors)
@@ -396,7 +448,7 @@ def main():
 
     try:
         timeout = int(sys.argv[1])
-    except:
+    except IndexError:
         timeout = 20
     temp_file = os.path.join(tempfile.gettempdir(), 'katutil_temp_6108589.txt')
     driver = get_driver(temp_file)
