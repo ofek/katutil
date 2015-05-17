@@ -37,7 +37,7 @@ class PhantomJSInstaller:
         try:
             os.mkdir(self.temp_dir)
         except:
-            self.cleanup()
+            shutil.rmtree(self.temp_dir)
             os.mkdir(self.temp_dir)
         os.chdir(self.temp_dir)
         self.archive_path = os.path.join(self.temp_dir, 'phantomjs.zip')
