@@ -105,9 +105,12 @@ class PhantomJSInstaller:
 
     def build(self):
         print('Compiling...\n\n')
+
         for cmd in self.build_cmds:
-            print('Running command: {}'.format(' '.join(cmd)))
+            print('\n>>> Running command: {}\n\n'.format(' '.join(cmd)))
             subprocess.call(cmd)
+            current_dir = os.getcwd()
+            os.chdir(current_dir)
 
     def cleanup(self):
         os.chdir(os.path.dirname(self.executable_path))
