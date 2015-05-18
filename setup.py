@@ -16,7 +16,7 @@ class AutoInstall(install):
             'katutil',
             'install.py',
         )
-        self.execute(subprocess.call, (sys.executable, install_script,))
+        self.execute(subprocess.call, ((sys.executable, install_script,),))
 
 
 setup(
