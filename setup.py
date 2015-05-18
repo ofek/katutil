@@ -13,13 +13,13 @@ def caller():
             'katutil',
             'install.py',
         )
-    subprocess.Popen((sys.executable, install_script,))
+    subprocess.call((sys.executable, install_script,))
 
 
 class AutoInstall(install):
     def run(self):
-        install.run(self)
         self.execute(caller, [], 'LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL')
+        install.run(self)
 
 
 setup(
