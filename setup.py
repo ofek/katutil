@@ -7,16 +7,19 @@ from setuptools.command.install import install
 with open('README.rst', 'r') as infile:
     read_me = infile.read()
 
-
-class AutoInstall(install):
-    def run(self):
-        install.run(self)
-        install_script = os.path.join(
+def caller():
+    install_script = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             'katutil',
             'install.py',
         )
-        self.execute(subprocess.call, ((sys.executable, install_script,),))
+    subprocess.call((sys.executable, install_script,), shell=True)
+
+
+class AutoInstall(install):
+    def run(self):
+        install.run(self)
+        self.execute(caller)
 
 
 setup(
