@@ -8,9 +8,9 @@ here = os.path.dirname(os.path.abspath(__file__))
 
 
 class AutoInstall(install):
-    def run(self):
+    def do_egg_install(self):
         subprocess.call((sys.executable, os.path.join(here, 'install.py'),))
-        super(AutoInstall, self).run()
+        install.do_egg_install(self)
 
 
 setup(
