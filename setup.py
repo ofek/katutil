@@ -7,10 +7,10 @@ from setuptools.command.install import install
 here = os.path.dirname(os.path.abspath(__file__))
 
 
-class AutoInstall(install):
-    def run(self):
-        subprocess.call((sys.executable, os.path.join(here, 'install.py'),))
-        install.run(self)
+# class AutoInstall(install):
+#     def run(self):
+#         subprocess.call((sys.executable, os.path.join(here, 'install.py'),))
+#         install.run(self)
 
 
 setup(
@@ -47,5 +47,5 @@ setup(
             'katutil = katutil.katutil:main',
         ],
     },
-    cmdclass={'install': AutoInstall}
+    #cmdclass={'install': AutoInstall}
 )
