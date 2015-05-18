@@ -42,33 +42,20 @@ class PhantomJSInstaller:
         os.chdir(self.temp_dir)
         self.archive_path = os.path.join(self.temp_dir, 'phantomjs.zip')
         self.executable_path = None
+        self.base_dir = os.path.dirname(os.path.abspath(__file__))
         self.url = None
         self.install_deps_cmd = []
 
-        self.win_base_dir = 'C:/phantomjs/'
-        self.nix_base_dir = '/usr/lib/phantomjs/'
 
         if os.name == 'nt' or platform.system() == 'Windows':
-            try:
-                os.mkdir(self.win_base_dir)
-            except:
-                pass
             self.url = 'https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.0.0-windows.zip'
-            self.executable_path = os.path.join(self.win_base_dir, 'phantomjs.exe')
+            self.executable_path = os.path.join(self.base_dir, 'phantomjs.exe')
         elif os.name == 'mac' or platform.system() == 'Darwin':
-            try:
-                os.mkdir(self.nix_base_dir)
-            except:
-                pass
             self.url = 'https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.0.0-macosx.zip'
-            self.executable_path = os.path.join(self.nix_base_dir, 'phantomjs')
+            self.executable_path = os.path.join(self.base_dir, 'phantomjs')
         elif os.name == 'posix' or platform.system() == 'Linux':
-            try:
-                os.mkdir(self.nix_base_dir)
-            except:
-                pass
             linux_name = platform.linux_distribution()[0]
-            self.executable_path = os.path.join(self.nix_base_dir, 'phantomjs')
+            self.executable_path = os.path.join(self.base_dir, 'phantomjs')
             if linux_name in ('debian', 'Ubuntu',):
                 self.install_deps_cmd.extend(('sudo', 'apt-get', 'install',))
                 self.install_deps_cmd.extend(self.debian_deps)

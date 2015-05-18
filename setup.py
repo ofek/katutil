@@ -4,12 +4,18 @@ import sys
 from setuptools import setup, find_packages
 from setuptools.command.install import install
 
-here = os.path.dirname(os.path.abspath(__file__))
+with open('README.rst', 'r') as infile:
+    read_me = infile.read()
 
 
 class AutoInstall(install):
     def do_egg_install(self):
-        subprocess.call((sys.executable, os.path.join(here, 'install.py'),))
+        install_script = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'katutil',
+            'install.py',
+        )
+        subprocess.call((sys.executable, install_script,))
         install.do_egg_install(self)
 
 
@@ -17,12 +23,14 @@ setup(
     name='katutil',
     version='0.7',
     description='utilities for automating tasks on KickassTorrents',
+    long_description=read_me,
     author='Ofek Lev',
     author_email='ofekmeister@gmail.com',
     maintainer='Ofek Lev',
     maintainer_email='ofekmeister@gmail.com',
     url='https://github.com/Ofekmeister/katutil',
     license='MIT',
+    platforms=None,
 
     classifiers=[
         'Development Status :: 4 - Beta',
