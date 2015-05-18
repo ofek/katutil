@@ -129,7 +129,7 @@ class PhantomJSInstaller:
         s = ('\n\nTo see how to manually install PhantomJS, please go to\n'
              'https://github.com/Ofekmeister/katutil\n\n')
 
-        choice = input('\n\nAutomatically install PhantomJS? (y/n)')
+        choice = input('\n\nAutomatically install PhantomJS? (y/n) ')
         if choice in ('n', 'no'):
             print(s)
             return

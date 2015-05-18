@@ -39,7 +39,7 @@ setup(
         'Programming Language :: Python :: 3.4',
     ],
 
-    install_requires=['selenium==2.45.0'],
+    setup_requires=['selenium==2.45.0'],
     packages=find_packages(),
     entry_points={
         'console_scripts': [
