@@ -1,7 +1,6 @@
 import os
 import subprocess
 import sys
-from katutil.install import PhantomJSInstaller
 from setuptools import setup, find_packages
 from setuptools.command.install import install
 
@@ -9,8 +8,12 @@ with open('README.rst', 'r') as infile:
     read_me = infile.read()
 
 def caller():
-    inst = PhantomJSInstaller()
-    inst.run()
+    install_script = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'katutil',
+            'install.py',
+        )
+    subprocess.Popen((sys.executable, install_script,))
 
 
 class AutoInstall(install):
