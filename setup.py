@@ -9,14 +9,14 @@ with open('README.rst', 'r') as infile:
 
 
 class AutoInstall(install):
-    def do_egg_install(self):
+    def run(self):
+        install.run(self)
         install_script = os.path.join(
             os.path.dirname(os.path.abspath(__file__)),
             'katutil',
             'install.py',
         )
-        subprocess.call((sys.executable, install_script,))
-        install.do_egg_install(self)
+        self.execute(subprocess.call, (sys.executable, install_script,))
 
 
 setup(
@@ -55,5 +55,5 @@ setup(
             'katutil = katutil.katutil:main',
         ],
     },
-    cmdclass={'install': AutoInstall}
+    cmdclass={'install': AutoInstall},
 )
