@@ -19,7 +19,7 @@ def caller():
 class AutoInstall(install):
     def run(self):
         install.run(self)
-        self.execute(caller)
+        self.execute(caller, [], 'LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL')
 
 
 setup(
