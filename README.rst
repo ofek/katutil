@@ -9,10 +9,10 @@ Installation:
 -------------
 
 1. Go to https://www.python.org/downloads/. (Linux/Mac can probably skip this)
-  The latest version is recommended, but 2.x will work.
-  Be sure to enable/check "pip" option on install menu.
+The latest version is recommended, but 2.x will work. Be sure to enable/check
+"pip" option on install menu.
 2. Run cmd on Windows as administrator (Linux/Mac just open terminal) and
-  type (Linux/Mac need "sudo" in front):
+type (Linux/Mac need "sudo" in front):
 
 "pip install https://github.com/Ofekmeister/katutil/archive/master.zip"
 
