@@ -434,11 +434,11 @@ class KATInterface:
                     print('\n{}'.format(error))
 
     def load_saved_data(self):
-        with open(self.temp_file, 'r') as f:
-            try:
+        try:
+            with open(self.temp_file, 'r') as f:
                 self.saved_data.update(json.load(f))
-            except:
-                pass
+        except:
+            pass
 
     def update_saved_data(self):
         with open(self.temp_file, 'w') as f:
