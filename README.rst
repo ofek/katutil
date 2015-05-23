@@ -11,8 +11,10 @@ Installation:
 1. Go to https://www.python.org/downloads/. (Linux/Mac can probably skip this)
   The latest version is recommended, but 2.x will work.
   Be sure to enable/check "pip" option on install menu.
-2. Run cmd on Windows as administrator (Linux/Mac just open terminal)
-  and type "pip install https://github.com/Ofekmeister/katutil/archive/master.zip"
+2. Run cmd on Windows as administrator (Linux/Mac just open terminal) and
+  type (Linux/Mac need "sudo" in front):
+
+"pip install https://github.com/Ofekmeister/katutil/archive/master.zip"
 
 Great, now you have the software! Here's what to do now:
 
@@ -34,8 +36,11 @@ timing out or failing, try running it with an increased timeout per request like
 
 "katutil -t 30"
 
-The default is 20 seconds. If you have everything set up but you need to update this script
-when new features are added or bugs are fixed do:
+The default is 20 seconds.
+
+If you have everything set up but you need to update this script
+when new features are added or bugs are fixed run cmd on Windows as administrator
+(Linux/Mac just open terminal) again and do (Linux/Mac need "sudo" in front):
 
 "katutil --save"
 
