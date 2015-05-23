@@ -437,7 +437,7 @@ class KATInterface:
         with open(self.temp_file, 'r') as f:
             try:
                 self.saved_data.update(json.load(f))
-            except ValueError:
+            except:
                 pass
 
     def update_saved_data(self):
