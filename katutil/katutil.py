@@ -90,7 +90,7 @@ class KATInterface:
 
         while path is None:
             try:
-                path = previous_path or auto_install_path
+                path = auto_install_path or previous_path
 
                 if get_input(
                     r'^(y|n|)$', '\n\nIs path "{}" correct? (y/n) '.format(path)
