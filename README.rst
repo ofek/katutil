@@ -1,41 +1,47 @@
-# katutil
+=======
+katutil
+=======
 
-Script to refresh and/or edit all of a user's torrents' trackers on KickassTorrents
+- Script to refresh and/or edit all of a user's torrents' trackers on KickassTorrents
+- More features coming soon, and requests are welcome!
 
-Until the official KickassTorrents site feature is implemented (not for a long time imo), this is
-a script I wrote that allows each of us to refresh or edit all of the trackers on all of our
-torrents in one go whenever we want!
+Installation:
+-------------
 
-Only 4 quick steps to set the script up:
-
-1. Go to http://phantomjs.org/download.html. It's basically an invisible web browser.
-  Windows & OS X users extract phantomjs executable from "bin" folder in .zip to somewhere and note its path.
-  Linux users build from source.
-2. Go to https://www.python.org/downloads/.
-  The latest version is recommended as that's all I've tested it on, but 2.x may work.
+1. Go to https://www.python.org/downloads/. (Linux/Mac can probably skip this)
+  The latest version is recommended, but 2.x will work.
   Be sure to enable/check "pip" option on install menu.
-3. Open terminal (cmd on windows) and type "pip install selenium"
-4. Download https://github.com/Ofekmeister/kat-tracker-updater/archive/master.zip.
-  Extract the "tracker_updater.py" file to somewhere.
+2. Run cmd on Windows as administrator (Linux/Mac just open terminal)
+  and type "pip install https://github.com/Ofekmeister/katutil/archive/master.zip"
 
-Now you're all set! There are 2 ways to run it:
+Great, now you have the software! Here's what to do now:
 
-1. If you are confident your newer version of Python is set up ok just double
-click the .py like you would a program. The script will prompt you for your
-username, etc. and save info for next time.
+3. In same cmd/terminal, type (Linux/Mac need "sudo" in front):
 
-2. To run it in terminal/cmd type "path/to/python path/to/tracker_updater.py" (without quotes).
-The script accepts an optional argument where you can specify the timeout between requests if
-connectivity issues to KAT arise (default is 20) i.e. "path/to/python path/to/tracker_updater.py 32"
-would set the timeout to 32. I personally have never had an issue with the default I set, but just
-in case you do, you have the ability to increase it.
+"katutil --install"
+
+this will start an automatic install of PhantomJS which is needed to non-intrusively
+interact with websites, otherwise this script would have to take over a firefox/chrome
+window. If it should somehow fail, download it yourself at http://phantomjs.org/download.html
+
+Now you're all set! From now on just open a normal cmd/terminal and type:
+
+"katutil"
+
+and simply follow the prompts. It will save all info except your password in a temp file for
+easier repeat use. If you or KAT is experiencing connectivity issues and the requests keep
+timing out or failing, try running it with an increased timeout per request like this:
+
+"katutil -t 30"
+
+The default is 20 seconds. If you have everything set up but you need to update this script
+when new features are added or bugs are fixed do:
+
+"katutil --save"
+
+This attempts to save the PhantomJS executable in a temp location to avoid having to
+reinstall that. Then repeat step 2 & 3.
 
 
-Mega note: I'm pretty sure in the background KAT has a process queue like Celery that
-handles certain requests. If a dev says they don't, everyone should uncomment the
-"time.sleep(10)" line in the refreshTrackers and editTrackers functions in the .py file to
-add a 10 second delay between refresh and edit requests.
-
-
-Please tell me if this works for you or if you encounter any issues. I'll fix bugs prompty.
+Please tell me if this works for you or if you encounter any issues. I'll fix bugs promptly.
 I'll put this in tutorials when I hear this works for most of you \(^_*)/

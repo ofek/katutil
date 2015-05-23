@@ -1,5 +1,6 @@
 import os
 import platform
+import re
 import shutil
 import subprocess
 import sys
@@ -11,6 +12,16 @@ if sys.version[0] == '2':
     input = raw_input
 elif sys.version[0] == '3':
     from urllib.request import urlopen
+
+
+def get_input(raw_string, message):
+    temp = 0
+    while not temp:
+        temp = input(message)
+        if not re.match(raw_string, temp):
+            temp = 0
+        else:
+            return temp
 
 
 class PhantomJSInstaller:
@@ -74,12 +85,11 @@ class PhantomJSInstaller:
         req = urlopen(self.url)
         with open(self.archive_path, 'wb') as archive:
             while True:
-                chunk = req.read(1024)
-                if chunk:
-                    archive.write(chunk)
-                    archive.flush()
-                else:
+                chunk = req.read(20480)
+                if not chunk:
                     break
+                archive.write(chunk)
+                archive.flush()
 
     def extract_archive(self):
         print('\nExtracting executable from archive...\n')
@@ -116,10 +126,34 @@ class PhantomJSInstaller:
         s = ('\n\nTo see how to manually install PhantomJS, please go to\n'
              'https://github.com/Ofekmeister/katutil\n\n')
 
-        choice = input('\n\nAutomatically install PhantomJS? (y/n) ')
-        if choice in ('n', 'no'):
+        choice = get_input(r'^(y|n)$', '\n\nAutomatically install PhantomJS? (y/n) ')
+        if choice == 'n':
             print(s)
             return
+
+        try:
+            temp_dir = tempfile.gettempdir()
+            for file in os.listdir(temp_dir):
+                if 'phantomjs' in file:
+                    choice = get_input(
+                        r'^(y|n)$',
+                        '\n\nA previous install of PhantomJS detected, use it? (y/n) '
+                    )
+                    if choice == 'y':
+                        shutil.move(
+                            os.path.join(temp_dir, file),
+                            os.path.join(self.base_dir, file[21:])
+                        )
+                        print('\n\nSuccessfully reloaded PhantomJS executable!\n\n')
+                        return
+        except:
+            p = ('\n\nUnable to reload PhantomJS, most likely due to '
+                 'cmd not\nbeing run as administrator or sudo was not used.\n'
+                 'Elevated permissions are needed. Try a fresh install? (y/n)')
+            choice = get_input(r'^(y|n)$', p)
+            if choice == 'n':
+                print('\n\nExiting...\n\n')
+                return
 
         try:
             if self.executable_path is not None:
@@ -130,6 +164,7 @@ class PhantomJSInstaller:
                     self.install_deps()
                     self.build()
                     shutil.move('bin/phantomjs', self.executable_path)
+                print('\n\nInstall successful!\n\n')
             else:
                 input('\nUnknown operating system, automatic installation '
                       'failed.{}'.format(s))
@@ -144,8 +179,3 @@ class PhantomJSInstaller:
 if __name__ == '__main__':
     inst = PhantomJSInstaller()
     inst.run()
-
-
-
-
-

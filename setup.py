@@ -1,30 +1,12 @@
-import os
-import subprocess
-import sys
 from setuptools import setup, find_packages
-from setuptools.command.install import install
 
 with open('README.rst', 'r') as infile:
     read_me = infile.read()
 
-def caller():
-    install_script = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)),
-            'katutil',
-            'install.py',
-        )
-    subprocess.call((sys.executable, install_script,))
-
-
-class AutoInstall(install):
-    def run(self):
-        self.execute(caller, [], 'LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL')
-        install.run(self)
-
 
 setup(
     name='katutil',
-    version='0.7',
+    version='0.8.0',
     description='utilities for automating tasks on KickassTorrents',
     long_description=read_me,
     author='Ofek Lev',
@@ -58,5 +40,4 @@ setup(
             'katutil = katutil.katutil:main',
         ],
     },
-    cmdclass={'install': AutoInstall},
 )
