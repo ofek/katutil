@@ -62,7 +62,7 @@ class PhantomJSInstaller:
             self.url = 'https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.0.0-windows.zip'
             self.executable_path = os.path.join(self.base_dir, 'phantomjs.exe')
         elif os.name == 'mac' or platform.system() == 'Darwin':
-            self.url = 'https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.0.0-macosx.zip'
+            self.url = 'https://github.com/eugene1g/phantomjs/releases/download/2.0.0-bin/phantomjs-2.0.0-macosx.zip'
             self.executable_path = os.path.join(self.base_dir, 'phantomjs')
         elif os.name == 'posix' or platform.system() == 'Linux':
             linux_name = platform.linux_distribution()[0]
@@ -96,9 +96,12 @@ class PhantomJSInstaller:
 
         with ZipFile(self.archive_path) as archive,\
                 open(self.executable_path, 'wb') as executable:
-            for name in archive.namelist():
-                if '/bin/phantomjs' in name:
-                    executable.write(archive.read(name))
+            filenames = archive.namelist()
+            if len(filenames) == 1:
+                executable.write(archive.read(filenames[0]))
+            for file in filenames:
+                if '/bin/phantomjs' in file:
+                    executable.write(archive.read(file))
                     break
 
     def install_deps(self):
