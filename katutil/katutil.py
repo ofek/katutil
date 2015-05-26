@@ -170,7 +170,7 @@ class KATInterface:
                 user = previous_user
             print('\n\nValidating user...\n')
 
-            self.driver.get(upload_url.format(quote(user)))
+            self.driver.get(upload_url.format(user))
             main_area = WebDriverWait(self.driver, self.timeout).until(
                 lambda x:
                     self.check_enabled(
