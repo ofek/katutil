@@ -36,6 +36,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 if sys.version[0] == '2':
     input = raw_input
+    from urllib import quote
+elif sys.version[0] == '3':
+    from urllib.parse import quote
 
 
 def get_input(raw_string, message):
@@ -167,7 +170,7 @@ class KATInterface:
                 user = previous_user
             print('\n\nValidating user...\n')
 
-            self.driver.get(upload_url.format(user))
+            self.driver.get(upload_url.format(quote(user)))
             main_area = WebDriverWait(self.driver, self.timeout).until(
                 lambda x:
                     self.check_enabled(
