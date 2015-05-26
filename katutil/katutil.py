@@ -170,7 +170,7 @@ class KATInterface:
                 user = previous_user
             print('\n\nValidating user...\n')
 
-            self.driver.get(upload_url.format(user))
+            self.driver.get(upload_url.format(quote(user)))
             main_area = WebDriverWait(self.driver, self.timeout).until(
                 lambda x:
                     self.check_enabled(
@@ -181,7 +181,7 @@ class KATInterface:
 
             try:
                 error_text = main_area.find_element_by_class_name('errorpage').text
-                if 'by {}'.format(user) in error_text:
+                if 'by {}'.format(user) in error_text or 'by {}'.format(quote(user)) in error_text:
                     t = get_input(r'^(y|n)$', '\n\nUser has no uploads, try another? (y/n) ')
                     if t == 'y':
                         user = None
@@ -210,7 +210,7 @@ class KATInterface:
         self.user = user
 
     def get_urls(self):
-        upload_url = self.base_upload_url.format(self.domain).format(self.user)
+        upload_url = self.base_upload_url.format(self.domain).format(quote(self.user))
         if self.driver.current_url != upload_url:
             self.driver.get(upload_url)
 
@@ -331,7 +331,8 @@ class KATInterface:
                     return
 
             self.driver.get(about_url)
-            if self.user not in self.driver.page_source:
+            if self.user not in self.driver.page_source or\
+                quote(self.user) not in self.driver.page_source:
                 t = get_input(r'^(y|n)$', '\n\nIncorrent email or password, try another (y/n)? ')
                 if t == 'y':
                     email = None
