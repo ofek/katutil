@@ -57,7 +57,6 @@ class PhantomJSInstaller:
         self.url = None
         self.install_deps_cmd = []
 
-
         if os.name == 'nt' or platform.system() == 'Windows':
             self.url = 'https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.0.0-windows.zip'
             self.executable_path = os.path.join(self.base_dir, 'phantomjs.exe')
