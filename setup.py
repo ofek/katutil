@@ -6,7 +6,7 @@ with open('README.rst', 'r') as infile:
 
 setup(
     name='katutil',
-    version='0.8.0',
+    version='0.9.0',
     description='utilities for automating tasks on KickassTorrents',
     long_description=read_me,
     author='Ofek Lev',
@@ -27,7 +27,6 @@ setup(
         'Operating System :: Microsoft :: Windows',
         'Operating System :: MacOS :: MacOS X',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
     ],

@@ -239,12 +239,39 @@ class KATInterface:
         self.urls = urls
         self.num_torrents = len(urls)
 
+    def get_num_requested_torrents(self):
+        count = None
+        num_torrents = self.num_torrents
+        s = ('\n\nUse how many urls? (max {}) Enter a negative to begin from '
+             'the oldest, or nothing for all.\n\n'.format(num_torrents))
+
+        while count is None:
+            count = get_input(r'^(-?[0-9]+|)$', s)
+            count = 0 if count == '' else int(count)
+
+            if count == 0:
+                count = num_torrents
+            if abs(count) > num_torrents:
+                count = None
+
+        return count
+
     def refresh_trackers(self):
+        num_requested_torrents = self.get_num_requested_torrents()
         errors = []
         text = ''
         print('\n\nRefreshing torrents, this may take a while...\n\n')
 
+        start_index = (0 if num_requested_torrents > 0 else
+                       self.num_torrents - abs(num_requested_torrents))
+        count = 0
+
         for i, url in enumerate(self.urls):
+            if i < start_index:
+                continue
+            if count == num_requested_torrents:
+                break
+
             time.sleep(1)
             try:
                 text = '{}/{} - {}'.format(i + 1, self.num_torrents, url)
@@ -264,8 +291,10 @@ class KATInterface:
             except TimeoutException:
                 errors.append(text)
 
+            count += 1
+
         num_errors = len(errors)
-        num_successful = self.num_torrents - num_errors
+        num_successful = abs(num_requested_torrents) - num_errors
 
         print('\n\nTorrents refreshed: {}\nErrors: {}\n\n'.format(num_successful, num_errors))
         if num_errors > 0:
@@ -386,12 +415,22 @@ class KATInterface:
 
     def edit_trackers(self):
         self.get_trackers()
+        num_requested_torrents = self.get_num_requested_torrents()
         trackers = self.saved_data['trackers']
         errors = []
         text = ''
         print('\n\nEditing trackers, this may take a while...\n\n')
 
+        start_index = (0 if num_requested_torrents > 0 else
+                       self.num_torrents - abs(num_requested_torrents))
+        count = 0
+
         for i, url in enumerate(self.urls):
+            if i < start_index:
+                continue
+            if count == num_requested_torrents:
+                break
+
             time.sleep(1)
             try:
                 text = '{}/{} - {}'.format(i + 1, self.num_torrents, url)
@@ -428,7 +467,7 @@ class KATInterface:
                 errors.append(text)
 
         num_errors = len(errors)
-        num_successful = self.num_torrents - num_errors
+        num_successful = abs(num_requested_torrents) - num_errors
 
         print('\n\nTorrents edited: {}\nErrors: {}\n\n'.format(num_successful, num_errors))
         if num_errors > 0:
@@ -497,8 +536,8 @@ def main():
     ki.connect()
 
     prompt = ('\n\nPlease choose an option:\n\n'
-              '\t1 - Refresh all trackers\n'
-              '\t2 - Edit all trackers\n'
+              '\t1 - Refresh trackers\n'
+              '\t2 - Edit trackers\n'
               '\tq - Quit\n\n'
               '\t==>  ')
 
