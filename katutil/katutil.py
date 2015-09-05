@@ -284,10 +284,11 @@ class KATInterface:
                         self.check_enabled(
                             x.find_element_by_id('trackerBox')
                             .find_element_by_class_name('buttonsline')
-                            .find_element_by_tag_name('button')
+                            .find_elements_by_tag_name('a')[0]
                         )
                 )
                 refresh_button.click()
+
             except TimeoutException:
                 errors.append(text)
 
@@ -442,7 +443,7 @@ class KATInterface:
                         self.check_enabled(
                             x.find_element_by_id('trackerBox')
                             .find_element_by_class_name('buttonsline')
-                            .find_element_by_tag_name('a')
+                            .find_elements_by_tag_name('a')[1]
                         )
                 )
                 url = edit_button.get_attribute('href')
@@ -465,6 +466,8 @@ class KATInterface:
 
             except TimeoutException:
                 errors.append(text)
+
+            count += 1
 
         num_errors = len(errors)
         num_successful = abs(num_requested_torrents) - num_errors
@@ -541,15 +544,18 @@ def main():
               '\tq - Quit\n\n'
               '\t==>  ')
 
+    ki.login()
     choice = None
 
     while choice != 'q':
         choice = get_input(r"^(1|2|q)$", prompt)
 
         if choice == '1':
-            ki.refresh_trackers()
+            if ki.is_authenticated:
+                ki.refresh_trackers()
+            else:
+                print('\n\nCannot refresh trackers without logging in.')
         elif choice == '2':
-            ki.login()
             if ki.is_authenticated:
                 ki.edit_trackers()
             else:
