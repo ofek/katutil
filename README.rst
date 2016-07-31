@@ -1,3 +1,9 @@
+=====================
+Requiscat in pace KAT
+=====================
+
+This project will no longer be maintained as KAT was seized.
+
 =======
 katutil
 =======
