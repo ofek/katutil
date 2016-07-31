@@ -56,4 +56,4 @@ reinstall that. Then repeat step 2 & 3.
 
 
 Please tell me if this works for you or if you encounter any issues. I'll fix bugs promptly.
-I'll put this in tutorials when I hear this works for most of you \(^_*)/
+I'll put this in tutorials when I hear this works for most of you \\(^_*)/
